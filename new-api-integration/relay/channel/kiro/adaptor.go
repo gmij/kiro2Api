@@ -32,6 +32,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/tidwall/gjson"
 
 	// These imports reference new-api packages. When integrating, adjust the module path
 	// to match the actual new-api module (e.g., github.com/QuantumNous/new-api).
@@ -135,10 +136,9 @@ func (a *Adaptor) ConvertOpenAIRequest(c *gin.Context, info *relaycommon.RelayIn
 		enableThinking = true // Heuristic: stream options often accompany thinking requests
 	}
 
-	// Check for explicit thinking configuration
-	// In the raw JSON, check for thinking.type = "enabled" or extended_thinking = true
-	rawJSON := string(requestJSON)
-	if strings.Contains(rawJSON, `"thinking"`) || strings.Contains(rawJSON, `"extended_thinking"`) {
+	// Check for explicit thinking configuration in the request JSON
+	parsed := gjson.ParseBytes(requestJSON)
+	if parsed.Get("thinking.type").String() == "enabled" || parsed.Get("extended_thinking").Bool() {
 		enableThinking = true
 	}
 

@@ -9,6 +9,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+const truncationSuffix = "\n... (truncated)"
+
 // ============================================================================
 // Request Conversion: OpenAI/Claude → CodeWhisperer conversationState
 // ============================================================================
@@ -270,7 +272,7 @@ func ConvertOpenAIToKiro(requestJSON []byte, mappedModel string, enableThinking 
 
 			// Truncate if too long
 			if len(content) > MaxToolOutputLength {
-				content = content[:MaxToolOutputLength] + "\n... (truncated)"
+				content = content[:MaxToolOutputLength] + truncationSuffix
 			}
 
 			toolResults = append(toolResults, ToolResult{
@@ -443,7 +445,7 @@ func ConvertClaudeToKiro(requestJSON []byte, mappedModel string, enableThinking 
 							}
 						}
 						if len(resultContent) > MaxToolOutputLength {
-							resultContent = resultContent[:MaxToolOutputLength] + "\n... (truncated)"
+							resultContent = resultContent[:MaxToolOutputLength] + truncationSuffix
 						}
 						status := "success"
 						if block.Get("is_error").Bool() {
